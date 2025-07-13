@@ -2,12 +2,14 @@ import express from 'express';
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
+import { swaggerUi, swaggerSpec } from './swagger.js';
 import Otp from './models/otpModel.js';
 import sendEmail from './utils/sendEmail.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 function generateOtp(){
     let otp = '';
@@ -20,6 +22,27 @@ function generateOtp(){
 app.get('/', (req, res)=>{
   res.send('Hello World');
 })
+
+/**
+ * @swagger
+ * /send-otp:
+ *   post:
+ *     summary: Send OTP to user email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: OTP sent
+ *       400:
+ *         description: Missing email or failure
+ */
 
 app.post('/send-otp', async (req, res) => {
   const {email} = req.body;
